@@ -10,5 +10,5 @@ Implementation of Reinforcement Learning Algorithms, mainly in openAI gym
 * qlearn2.py: https://gym.openai.com/evaluations/eval_S6ldgxysSay2eidRk9eHNA
 
 ### Running:
-Numpy, openAI gym, and python3 are required to run any of the programs.
+openAI gym, and python3 are required to run any of the programs.
 To run enter: `python3 filename.py` on command line
