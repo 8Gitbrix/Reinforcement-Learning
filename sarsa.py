@@ -1,11 +1,11 @@
 ### Ashwin Jeyaseelan
 ### Sarsa (an on-policy TD control algorithm)
 import gym
-
+from gym import wrappers
 import random
+import numpy as np
 env = gym.make('Taxi-v1')
-from math import exp
-
+env = gym.wrappers.Monitor(env, "gym_results", force=True)
 
 Q = {}
 for s in range(env.observation_space.n):
@@ -13,18 +13,18 @@ for s in range(env.observation_space.n):
         Q[(s,a)] = 0.0
 
 def policy(state, t):
-    sm = sum([exp(Q[(state,a)]/t) for a in range(env.action_space.n)])
-    random_choice = random.uniform(0,sm)
+    p = np.array([Q[(state,x)]/t for x in range(env.action_space.n)])
+    prob_actions = np.exp(p) / np.sum(np.exp(p))
     cumulative_probability = 0.0
+    choice = random.uniform(0,1)
+    for a,pr in enumerate(prob_actions):
+        cumulative_probability += pr
+        if cumulative_probability > choice:
+            return a
 
-    for x in range(env.action_space.n):
-        cumulative_probability += exp(Q[(state,x)]/t)
-        if cumulative_probability > random_choice:
-            return x
-
-alpha = 0.45
+alpha = 0.85
 gamma = 0.90
-t = 2.0
+t = 4.0
 
 for _ in range(4000):
     r = 0 # r keeps track of accumulated score (used to measure performance at each episode!)
@@ -38,10 +38,10 @@ for _ in range(4000):
 
         action = action2
         state = state2
-
         r += reward
 
         if done:
+            t = 1.00
             break
 
     print("total reward: ", r)

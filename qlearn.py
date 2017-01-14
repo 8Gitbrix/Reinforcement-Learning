@@ -2,6 +2,7 @@
 ### Q-Learning with Boltzmann Exploration
 from math import exp
 import random
+import numpy as np
 import gym
 from gym import wrappers
 env = gym.make('FrozenLake8x8-v0')
@@ -20,17 +21,14 @@ def update(state, action, reward, nextstate, alpha, gamma):
 
 # used to select action to take
 def policy(state, t):
-    actions = {}
-    sm = sum([exp(q[(state,a)]/t) for a in range(env.action_space.n)])
-    for a in range(env.action_space.n): # store each probability(action: a|state)
-        actions[a] = exp(q[(state,a)]/t)/sm # boltzmann equation
+    p = np.array([q[(state,x)]/t for x in range(env.action_space.n)])
+    prob_actions = np.exp(p) / np.sum(np.exp(p))
     cumulative_probability = 0.0
-    random_choice = random.uniform(0,sm)
-    for action, prob in sorted(actions.items(), key =lambda x: x[1]):
-        cumulative_probability += prob
-        if cumulative_probability >= random_choice:
-            break
-    return action
+    choice = random.uniform(0,1)
+    for a,pr in enumerate(prob_actions):
+        cumulative_probability += pr
+        if cumulative_probability > choice:
+            return a
 
 alpha = 0.8
 gamma = 0.999
